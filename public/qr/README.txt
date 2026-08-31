@@ -1,0 +1,1 @@
+QR PNG нь http://localhost:3000/feedback?table=1 рүү заана. Production domain тавьсны дараа дахин үүсгэнэ.

@@ -1,0 +1,5 @@
+node_modules
+.next
+.env*
+data/*.json.tmp
+.DS_Store

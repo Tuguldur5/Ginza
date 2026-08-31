@@ -1,0 +1,22 @@
+"use client";
+import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
+
+type Q = { id: string; text: string; type: string; active: boolean };
+type F = { id: string; table: string; createdAt: string; answers: Record<string, string> };
+
+export default function Admin() {
+    const [qs, setQs] = useState<Q[]>([]); const [fs, setFs] = useState<F[]>([]); const [logged, setLogged] = useState(false);
+    const [u, setU] = useState(""); const [p, setP] = useState(""); const [err, setErr] = useState("");
+    const load = () => Promise.all([fetch("/api/questions").then(r => r.json()), fetch("/api/feedback").then(r => r.json())]).then(([q, f]) => { setQs(q.questions || []); setFs(f.feedback || []) });
+    useEffect(() => { load() }, []);
+    const avg = useMemo(() => { const a = fs.map(f => Number(Object.values(f.answers).find(v => ["1", "2", "3", "4", "5"].includes(v)) || 0)).filter(Boolean); return a.length ? (a.reduce((x, y) => x + y, 0) / a.length).toFixed(1) : "—" }, [fs]);
+    const login = () => { if (u === "admin" && p === "ginza1234") { setLogged(true); setErr("") } else setErr("Нэвтрэх нэр эсвэл нууц үг буруу.") };
+    if (!logged) return <main className="container" style={{ padding: "80px 0", maxWidth: 460 }}><div className="card form-card"><div className="brand"><div className="brand-mark">G</div> Ginza Admin</div><h1 style={{ margin: "28px 0 8px" }}>Админ нэвтрэх</h1><p className="muted">Асуулт болон ирсэн санал хүсэлтийг удирдана.</p><input className="input" style={{ marginTop: 18 }} placeholder="Нэвтрэх нэр" value={u} onChange={e => setU(e.target.value)} /><input className="input" style={{ marginTop: 10 }} type="password" placeholder="Нууц үг" value={p} onChange={e => setP(e.target.value)} />{err && <p style={{ color: "#b42318" }}>{err}</p>}<button className="btn btn-primary" style={{ width: "100%", marginTop: 12 }} onClick={login}>Нэвтрэх</button><Link href="/feedback?table=1" style={{ display: "block", textAlign: "center", marginTop: 18, color: "#667085", textDecoration: "none", fontSize: 13 }}>Хэрэглэгчийн хуудсыг нээх →</Link></div></main>;
+    return <div className="admin-shell"><div className="topbar"><div className="topbar-inner"><div className="brand"><div className="brand-mark">G</div> Ginza Karaoke <span className="tag tag-gray">ADMIN</span></div><Link href="/feedback?table=1" className="btn btn-soft" style={{ textDecoration: "none" }}>Feedback page ↗</Link></div></div>
+        <div className="admin-grid"><aside className="card side"><Link className="nav-item active" href="/admin">Хяналтын самбар</Link><Link className="nav-item" href="/admin/questions">Асуултууд удирдах</Link><div style={{ marginTop: 25, padding: "12px", fontSize: 12, color: "#8992a0" }}>QR холбоос<br /><b style={{ color: "#344054" }}>/feedback?table=1</b></div></aside>
+            <section><div style={{ marginBottom: 22 }}><h1 style={{ margin: "0 0 5px" }}>Санал хүсэлтийн хяналт</h1><p className="muted" style={{ margin: 0 }}>Үйлчлүүлэгчдийн өгсөн feedback-ийг нэг дороос харах.</p></div>
+                <div className="stat-grid"><div className="card stat"><div className="muted">Нийт feedback</div><div className="stat-number">{fs.length}</div></div><div className="card stat"><div className="muted">Дундаж үнэлгээ</div><div className="stat-number">{avg}<span style={{ fontSize: 17 }}> / 5</span></div></div><div className="card stat"><div className="muted">Идэвхтэй асуулт</div><div className="stat-number">{qs.filter(q => q.active).length}</div></div></div>
+                <div className="card" style={{ marginTop: 18, padding: 20 }}><h3 style={{ marginTop: 0 }}>Сүүлийн санал хүсэлтүүд</h3>{fs.length === 0 ? <p className="muted">Одоогоор санал ирээгүй байна.</p> : <div className="feedback-list">{fs.slice(0, 20).map(f => <div className="feedback-item" key={f.id} style={{ border: "1px solid #edf0f4", borderRadius: 16 }}><div style={{ display: "flex", justifyContent: "space-between", gap: 10 }}><b>{f.id}</b><span className="tag tag-gray">Ширээ №{f.table}</span></div><div className="muted" style={{ fontSize: 12, margin: "7px 0 14px" }}>{new Date(f.createdAt).toLocaleString("mn-MN")}</div>{Object.entries(f.answers).map(([qid, a]) => <div key={qid} style={{ marginTop: 10 }}><div className="feedback-q">{qs.find(q => q.id === qid)?.text || "Асуулт"}</div><div className="feedback-a">{a || "—"}</div></div>)}</div>)}</div>}</div>
+            </section></div></div>
+}

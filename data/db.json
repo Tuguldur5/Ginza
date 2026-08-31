@@ -1,0 +1,33 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "type": "rating",
+      "text": "⭐ Ginza Karaoke-ийн үйлчилгээг нийтэд нь 1–5 оноогоор үнэлнэ үү?",
+      "required": true,
+      "active": true
+    },
+    {
+      "id": "q2",
+      "type": "text",
+      "text": "💬 Ginza Karaoke-д юуг сайжруулбал танд илүү таалагдах вэ?",
+      "required": false,
+      "active": true
+    },
+    {
+      "id": "q3",
+      "type": "text",
+      "text": "💬 Юуг сайжруулбал илүү таатай байх вэ?",
+      "required": false,
+      "active": true
+    },
+    {
+      "id": "q4",
+      "type": "textarea",
+      "text": "💭 Нэмэлт санал, сэтгэгдэл байвал энд бичнэ үү.",
+      "required": false,
+      "active": true
+    }
+  ],
+  "feedback": []
+}
