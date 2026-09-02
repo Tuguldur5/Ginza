@@ -10,13 +10,15 @@
   },
   "dependencies": {
     "@fontsource/inter": "^5.2.6",
+    "@google/genai": "^2.20.0",
     "bcryptjs": "^3.0.3",
     "lucide-react": "^1.39.0",
     "mongodb": "^6.21.0",
     "next": "^16.2.1",
     "qrcode": "^1.5.4",
     "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "react-dom": "^19.1.0",
+    "recharts": "^3.10.1"
   },
   "devDependencies": {
     "@types/node": "^20.17.30",
