@@ -1,0 +1,21 @@
+.admin-main > .admin-main { margin-left: 0; width: auto; padding: 0; }
+.admin-sidebar .nav-item { display: flex; align-items: center; gap: 10px; }
+.settings-link { margin-top: auto; }
+.mobile-menu, .drawer-close, .drawer-backdrop { display: none; }
+.room-layout { display: grid; grid-template-columns: minmax(220px, .8fr) minmax(260px, 1fr) minmax(220px, .8fr); gap: 18px; }
+.room-row { width: 100%; display: flex; justify-content: space-between; align-items: center; border: 0; border-bottom: 1px solid #edf0f2; background: transparent; padding: 15px 0; color: inherit; text-align: left; }
+.room-row small, .question-row small { display: block; color: #7b858e; font-size: 12px; margin-top: 5px; }
+.action-stack, .qr-actions, .question-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.btn-danger { background: #fff0f0; color: #a3292f; border: 1px solid #f4cccc; }
+.qr-panel { max-width: 620px; padding: 28px; }
+.qr-preview { text-align: center; padding-top: 28px; }
+.qr-preview img { display: block; width: min(360px, 100%); margin: 20px auto; border: 10px solid white; }
+.analytics-grid, .admin-two-column { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(280px, 1fr); gap: 22px; }
+.needs-attention { background: #fff8f7; }
+.modal-backdrop { position: fixed; inset: 0; z-index: 40; display: grid; place-items: center; padding: 20px; background: rgba(17, 24, 39, .42); }
+.modal-card { width: min(520px, 100%); padding: 26px; border-radius: 14px; background: white; box-shadow: 0 20px 60px rgba(17, 24, 39, .2); }
+.feedback-page { position: relative; }
+.feedback-page:before { content: ""; position: fixed; inset: 0; background: url('/images/Ginza.jpg') center / min(680px, 80vw) auto no-repeat; opacity: .045; filter: blur(.5px); pointer-events: none; z-index: -1; }
+body:has(.hero):before { content: ""; position: fixed; inset: 0; background: url('/images/Ginza.jpg') center / min(680px, 80vw) auto no-repeat; opacity: .045; filter: blur(.5px); pointer-events: none; z-index: -1; }
+@media (max-width: 1000px) { .room-layout { grid-template-columns: 1fr 1fr; } .room-add { grid-column: 1 / -1; } }
+@media (max-width: 800px) { .admin-sidebar { position: fixed; inset: 0 auto 0 0; z-index: 20; width: 270px; transform: translateX(-100%); transition: transform .2s; } .admin-sidebar.open { transform: translateX(0); } .drawer-backdrop { display: block; position: fixed; inset: 0; z-index: 10; border: 0; background: rgba(16,20,24,.4); } .drawer-close { display: grid; margin-left: auto; border: 0; background: transparent; color: #fff; } .mobile-menu { display: grid; position: fixed; z-index: 5; top: 14px; left: 14px; border: 1px solid #d7dce1; border-radius: 8px; background: #fff; color: #20252b; padding: 9px; } .admin-main { padding-top: 64px; } .analytics-grid, .admin-two-column, .room-layout { grid-template-columns: 1fr; } .room-add { grid-column: auto; } }

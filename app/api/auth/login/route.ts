@@ -1,0 +1,5 @@
+import { NextResponse } from "next/server";
+import { bcrypt, createSession, ensureDefaultAdmin } from "@/lib/auth";
+import { getDb } from "@/lib/mongodb";
+
+export async function POST(request: Request) { try { const body = await request.json(); const username = typeof body.username === "string" ? body.username.trim() : ""; const password = typeof body.password === "string" ? body.password : ""; await ensureDefaultAdmin(); const user = await (await getDb()).collection("admin_users").findOne({ username, role: "admin", isActive: true }); if (!user || typeof user.passwordHash !== "string" || !(await bcrypt.compare(password, user.passwordHash))) return NextResponse.json({ error: "Нэвтрэх нэр эсвэл нууц үг буруу байна." }, { status: 401 }); await createSession(user._id.toString()); return NextResponse.json({ ok: true }); } catch { return NextResponse.json({ error: "Нэвтрэх үед алдаа гарлаа." }, { status: 500 }); } }

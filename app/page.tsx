@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
 
 export default function Home() {
-  redirect("/feedback?table=1");
+  redirect("/feedback/room/1");
 }
