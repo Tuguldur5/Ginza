@@ -76,3 +76,44 @@ body:has(.hero):before { content: ""; position: fixed; inset: 0; background: url
 @media (max-width: 1000px) { .room-layout { grid-template-columns: 1fr 1fr; } .room-add { grid-column: 1 / -1; } }
 @media (max-width: 800px) { .admin-sidebar { position: fixed; inset: 0 auto 0 0; z-index: 20; width: 270px; transform: translateX(-100%); transition: transform .2s; } .admin-sidebar.open { transform: translateX(0); } .drawer-backdrop { display: block; position: fixed; inset: 0; z-index: 10; border: 0; background: rgba(16,20,24,.4); } .drawer-close { display: grid; margin-left: auto; border: 0; background: transparent; color: #fff; } .mobile-menu { display: grid; position: fixed; z-index: 5; top: 14px; left: 14px; border: 1px solid #d7dce1; border-radius: 8px; background: #fff; color: #20252b; padding: 9px; } .admin-main { padding-top: 64px; } .analytics-grid, .admin-two-column, .room-layout { grid-template-columns: 1fr; } .room-add { grid-column: auto; } }
 @media (max-width: 800px) { .analytics-controls { justify-content: flex-start; } .ai-columns { grid-template-columns: 1fr; } .chart-wrap { height: 260px; } }
+
+/* Keep the admin shell independent from page content at every breakpoint. */
+.admin-shell { min-height: 100vh; display: flex; overflow-x: hidden; }
+.admin-sidebar { position: fixed; inset: 0 auto 0 0; z-index: 60; width: 256px; height: 100dvh; overflow-y: auto; overflow-x: hidden; padding: 22px 14px; }
+.admin-main { min-width: 0; width: calc(100% - 256px); margin-left: 256px; padding: 36px 42px; }
+.sidebar-brand { min-height: 54px; flex: 0 0 auto; }
+.admin-sidebar nav { min-width: 0; }
+.admin-sidebar .nav-item { min-height: 44px; }
+.sidebar-logout { width: 100%; min-height: 44px; margin-top: auto; flex: 0 0 auto; }
+.mobile-menu { display: none; }
+.feedback-topbar { align-items: center; }
+.guest-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+.otp-modal { position: relative; }
+.modal-close { position: absolute; top: 14px; right: 16px; border: 0; background: transparent; color: #68727c; font-size: 28px; line-height: 1; }
+.loyalty-pass { position: relative; isolation: isolate; overflow: hidden; min-height: 300px; margin-bottom: 22px; padding: 28px; border-radius: 24px; color: #fff; background: linear-gradient(135deg, #193b47 0%, #176b63 52%, #db873e 150%); box-shadow: 0 24px 45px rgba(23, 59, 71, .25); transform: perspective(1000px) rotateX(1deg) rotateY(-1deg); }
+.loyalty-pass::after { content: ""; position: absolute; width: 260px; height: 260px; right: -80px; top: -100px; border: 1px solid rgba(255,255,255,.18); border-radius: 50%; box-shadow: 0 0 0 28px rgba(255,255,255,.05), 0 0 0 58px rgba(255,255,255,.04); z-index: -1; }
+.pass-top, .pass-footer, .pass-stats { display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+.pass-brand { font-size: 25px; font-weight: 700; letter-spacing: .02em; }
+.pass-level, .pass-stats small { font-size: 11px; letter-spacing: .12em; opacity: .75; }
+.pass-name { margin: 48px 0 24px; font-size: 26px; font-weight: 600; }
+.pass-stats > div { min-width: 0; }
+.pass-stats strong { display: block; margin-top: 5px; font-size: 39px; line-height: 1; }
+.pass-stats strong em { font-size: 15px; font-style: normal; opacity: .7; }
+.pass-stats span { font-size: 12px; opacity: .72; }
+.stamp-dots { display: flex; gap: 5px; margin-top: 10px; }
+.stamp-dots i { width: 13px; height: 13px; border: 1px solid rgba(255,255,255,.6); border-radius: 50%; }
+.stamp-dots i.filled { background: #f7c873; border-color: #f7c873; }
+.pass-footer { margin-top: 28px; }
+.barcode { width: 150px; height: 30px; background: repeating-linear-gradient(90deg, #fff 0 2px, transparent 2px 5px, #fff 5px 6px, transparent 6px 10px); opacity: .9; }
+.pass-footer span { font-size: 12px; letter-spacing: .14em; opacity: .8; }
+@media (max-width: 800px) {
+	body.admin-drawer-open { overflow: hidden; }
+	.admin-sidebar { width: min(86vw, 300px); transform: translateX(-105%); transition: transform .24s ease; box-shadow: 18px 0 40px rgba(0,0,0,.18); }
+	.admin-sidebar.open { transform: translateX(0); }
+	.admin-main { width: 100%; margin-left: 0; padding: 70px 16px 28px; }
+	.mobile-menu { display: grid; position: fixed; top: 14px; left: 14px; z-index: 55; width: 42px; height: 42px; place-items: center; border: 1px solid #d7dce1; border-radius: 10px; background: #fff; color: #20252b; padding: 0; box-shadow: 0 5px 16px rgba(17,24,39,.12); }
+	.drawer-backdrop { z-index: 50; }
+	.admin-header { padding-left: 54px; }
+	.sidebar-logout { margin-top: 24px; }
+	.guest-fields { grid-template-columns: 1fr; }
+}

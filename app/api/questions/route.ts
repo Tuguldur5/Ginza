@@ -36,7 +36,13 @@ export async function PATCH(req: Request) {
     if (body.type !== undefined && validTypes.includes(body.type)) update.type = body.type; else if (body.type !== undefined) return NextResponse.json({ error: "Асуултын төрөл буруу байна." }, { status: 400 });
     if (body.required !== undefined) update.required = body.required === true;
     if (body.isActive !== undefined) update.isActive = body.isActive === true;
-    if (body.order !== undefined && Number.isInteger(body.order) && body.order >= 0) update.order = body.order;
+    if (body.order !== undefined && Number.isInteger(body.order) && body.order >= 0) {
+      const db = await getDb();
+      const current = await db.collection("questions").findOne({ _id: id });
+      const neighbor = current ? await db.collection("questions").findOne({ order: body.order }) : null;
+      if (current && neighbor && !neighbor._id.equals(id)) await db.collection("questions").bulkWrite([{ updateOne: { filter: { _id: neighbor._id }, update: { $set: { order: current.order, updatedAt: new Date().toISOString() } } } }]);
+      update.order = body.order;
+    }
     const result = await (await getDb()).collection("questions").findOneAndUpdate({ _id: id }, { $set: update }, { returnDocument: "after" });
     if (!result) return NextResponse.json({ error: "Асуулт олдсонгүй." }, { status: 404 });
     return NextResponse.json({ question: serialize(result as typeof result & { _id: import("mongodb").ObjectId }) });

@@ -3,29 +3,15 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import {
-  BarChart3,
-  ClipboardList,
-  DoorOpen,
-  FileText,
-  LayoutDashboard,
-  LogOut,
-  Menu,
-  QrCode,
-  Settings,
-  Users,
-  X,
-} from "lucide-react";
+import { BarChart3, FileText, Gift, LayoutDashboard, LogOut, Menu, Settings, Users, X } from "lucide-react";
 import { useEffect, useState } from "react";
 
 const navigation = [
-  ["/admin", "Хянах самбар", LayoutDashboard],
-  ["/admin/feedback", "Санал хүсэлт", FileText],
-  ["/admin/questions", "Асуултууд", ClipboardList],
-  ["/admin/rooms", "Өрөөнүүд", DoorOpen],
-  ["/admin/qr", "QR код", QrCode],
+  ["/admin/dashboard", "Хянах самбар", LayoutDashboard],
+  ["/admin/feedbacks", "Санал хүсэлт", FileText],
+  ["/admin/loyalty", "Loyalty & купон", Gift],
   ["/admin/analytics", "Шинжилгээ", BarChart3],
-  ["/admin/users", "Хэрэглэгчид", Users],
+  ["/admin/users", "Админ хэрэглэгчид", Users],
 ] as const;
 
 export default function AdminShell({
@@ -41,7 +27,9 @@ export default function AdminShell({
     const storedScale = window.localStorage.getItem("admin_ui_scale");
     return storedScale === "0.85" || storedScale === "1" || storedScale === "1.15" ? Number(storedScale) : 1;
   });
+
   const isLogin = pathname === "/admin/login";
+
   useEffect(() => {
     const handleScaleChange = (event: Event) => {
       const value = (event as CustomEvent<number>).detail;
@@ -50,34 +38,57 @@ export default function AdminShell({
     window.addEventListener("admin-ui-scale-change", handleScaleChange);
     return () => window.removeEventListener("admin-ui-scale-change", handleScaleChange);
   }, []);
+
   useEffect(() => {
     if (!isLogin)
       fetch("/api/auth/session").then((response) => {
         if (!response.ok) router.replace("/admin/login");
       });
   }, [isLogin, pathname, router]);
+
+  useEffect(() => {
+    document.body.classList.toggle("admin-drawer-open", open);
+    return () => document.body.classList.remove("admin-drawer-open");
+  }, [open]);
+
   const logout = async () => {
     await fetch("/api/auth/logout", { method: "POST" });
     router.replace("/admin/login");
   };
+
   if (isLogin) return <>{children}</>;
+
   return (
     <div className="admin-shell" style={{ "--admin-ui-scale": uiScale } as React.CSSProperties}>
       <button
+        type="button"
         className="mobile-menu"
         aria-label="Цэс нээх"
         onClick={() => setOpen(true)}
       >
         <Menu size={22} />
       </button>
+
       {open && (
         <button
+          type="button"
           className="drawer-backdrop"
           aria-label="Цэс хаах"
           onClick={() => setOpen(false)}
         />
       )}
-      <aside className={`admin-sidebar ${open ? "open" : ""}`}>
+
+      <aside 
+        className={`admin-sidebar ${open ? "open" : ""}`} 
+        aria-label="Админ цэс"
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          height: "100vh",
+          maxHeight: "100vh",
+          boxSizing: "border-box",
+        }}
+      >
         <div className="sidebar-brand">
           <Image
             src="/images/Ginza.jpg"
@@ -89,6 +100,7 @@ export default function AdminShell({
             Санал хүсэлт
           </span>
           <button
+            type="button"
             className="drawer-close"
             aria-label="Цэс хаах"
             onClick={() => setOpen(false)}
@@ -96,15 +108,15 @@ export default function AdminShell({
             <X size={20} />
           </button>
         </div>
-        <nav>
+
+        <nav style={{ flex: 1, overflowY: "auto" }}>
           {navigation.map(([href, label, Icon]) => (
             <Link
               href={href}
               key={href}
               onClick={() => setOpen(false)}
               className={
-                pathname === href ||
-                (href !== "/admin" && pathname.startsWith(href))
+                pathname === href || pathname.startsWith(href)
                   ? "nav-item active"
                   : "nav-item"
               }
@@ -113,15 +125,39 @@ export default function AdminShell({
               <span>{label}</span>
             </Link>
           ))}
+
+          <Link 
+            className={`nav-item settings-link ${pathname === "/admin/settings" ? "active" : ""}`} 
+            href="/admin/settings" 
+            onClick={() => setOpen(false)}
+          >
+            <Settings size={18} />
+            <span>Тохиргоо</span>
+          </Link>
         </nav>
-        <Link className="nav-item settings-link" href="/admin/settings">
-          <Settings size={18} />
-          <span>Тохиргоо</span>
-        </Link>
-        <button className="sidebar-logout" onClick={logout}>
+
+        {/* position: relative & margin-top: auto өгснөөр доор бэхлэгдэнэ */}
+        <button 
+          type="button" 
+          className="sidebar-logout text-center" 
+          onClick={logout}
+          style={{
+            position: "relative",
+            top: "auto",
+            bottom: "auto",
+            left: "auto",
+            right: "auto",
+            marginTop: "auto",
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+            width: "100%",
+          }}
+        >
           <LogOut size={17} /> Гарах
         </button>
       </aside>
+
       <main className="admin-main">{children}</main>
     </div>
   );

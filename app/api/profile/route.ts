@@ -1,0 +1,6 @@
+import { NextResponse } from "next/server";
+import { getCurrentUser } from "@/lib/auth";
+import { getDb, objectId, serialize } from "@/lib/mongodb";
+
+export async function GET() { try { const user = await getCurrentUser(); return user ? NextResponse.json({ user }) : NextResponse.json({ error: "Нэвтрэх шаардлагатай." }, { status: 401 }); } catch { return NextResponse.json({ error: "Профайл ачаалж чадсангүй." }, { status: 500 }); } }
+export async function PATCH(request: Request) { try { const user = await getCurrentUser(); if (!user) return NextResponse.json({ error: "Нэвтрэх шаардлагатай." }, { status: 401 }); const name = String((await request.json()).name || "").replace(/[<>]/g, "").trim().slice(0, 80); if (!name) return NextResponse.json({ error: "Нэрээ оруулна уу." }, { status: 400 }); const id = objectId(user.id); if (!id) return NextResponse.json({ error: "Хэрэглэгч олдсонгүй." }, { status: 404 }); const result = await (await getDb()).collection("loyalty_users").findOneAndUpdate({ _id: id }, { $set: { name, updatedAt: new Date() } }, { returnDocument: "after" }); return NextResponse.json({ user: result ? serialize(result as typeof result & { _id: import("mongodb").ObjectId }) : null }); } catch { return NextResponse.json({ error: "Нэр хадгалах үед алдаа гарлаа." }, { status: 500 }); } }

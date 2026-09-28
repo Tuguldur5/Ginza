@@ -22,6 +22,8 @@ export default function Questions() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<Q | null>(null);
   const [loading, setLoading] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingText, setEditingText] = useState("");
 
   const load = () =>
     fetch("/api/questions?all=1")
@@ -103,10 +105,10 @@ export default function Questions() {
         {questions.length === 0 ? (
           <p className="muted">Одоогоор асуулт бүртгэгдээгүй байна.</p>
         ) : (
-          questions.map((q) => (
+          questions.map((q, index) => (
             <div className="question-row" key={q.id}>
               <div>
-                <strong>{q.text}</strong>
+                {editingId === q.id ? <div className="question-edit"><input className="input" value={editingText} onChange={(event) => setEditingText(event.target.value)} /><button className="btn btn-primary" onClick={() => { update(q, { text: editingText }); setEditingId(null); }}>Хадгалах</button></div> : <strong>{q.text}</strong>}
                 <small className="muted">
                   {q.type === "rating" && "Үнэлгээ"}
                   {q.type === "text" && "Богино текст"}
@@ -121,6 +123,9 @@ export default function Questions() {
                     update(q, { isActive: !q.isActive })
                   }
                 />
+                <button className="btn btn-soft" disabled={index === 0} onClick={() => update(q, { order: q.order - 1 })} aria-label="Дээш зөөх">↑</button>
+                <button className="btn btn-soft" disabled={index === questions.length - 1} onClick={() => update(q, { order: q.order + 1 })} aria-label="Доош зөөх">↓</button>
+                <button className="btn btn-soft" onClick={() => { setEditingId(q.id); setEditingText(q.text); }}>Засах</button>
                 <button
                   className="btn btn-danger"
                   onClick={() => setDeleteConfirm(q)}

@@ -1,0 +1,15 @@
+"use client";
+import { FormEvent, useEffect, useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+
+type User = { phone: string; name: string; stamps: number; coupons: number };
+export default function ProfilePage() {
+  const router = useRouter(); const [user, setUser] = useState<User | null>(null); const [name, setName] = useState(""); const [message, setMessage] = useState("");
+  useEffect(() => { fetch("/api/profile").then(async response => { if (!response.ok) return router.replace("/login"); const data = await response.json(); setUser(data.user); setName(data.user.name || ""); }); }, [router]);
+  const save = async (event: FormEvent) => { event.preventDefault(); const response = await fetch("/api/profile", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name }) }); const data = await response.json(); setMessage(response.ok ? "Нэр хадгалагдлаа." : data.error); if (response.ok) setUser(current => current ? { ...current, name: data.user.name } : current); };
+  if (!user) return <main className="public-shell"><div className="container">Ачаалж байна...</div></main>;
+  const memberCode = `976${user.phone}`;
+  return <main className="public-shell"><div className="container profile-wrap"><header className="public-header"><div className="ginza-user-brand"><Image src="/images/Ginza.jpg" alt="Ginza" width={76} height={46} /><div><div className="eyebrow">GINZA · ТАНЫ ПРОФАЙЛ</div><h1>Сайн байна уу{user.name ? `, ${user.name}` : ""}?</h1><p className="muted">+976 {user.phone}</p></div></div><button className="btn btn-soft" onClick={async () => { await fetch("/api/auth/logout-user", { method: "POST" }); router.replace("/login"); }}>Гарах</button></header><section className="loyalty-pass" aria-label="Ginza membership card"><div className="pass-top"><span className="pass-brand">GINZA</span><span className="pass-level">MEMBER PASS</span></div><div className="pass-name">{user.name || "Ginza member"}</div><div className="pass-stats"><div><small>STAMP</small><strong>{user.stamps}<em>/ 5</em></strong><div className="stamp-dots">{[0, 1, 2, 3, 4].map(index => <i className={index < user.stamps ? "filled" : ""} key={index} />)}</div></div><div><small>COUPON</small><strong>{user.coupons}</strong><span>идэвхтэй эрх</span></div></div><div className="pass-footer"><div className="barcode" aria-label={`Гишүүний код ${memberCode}`} /><span>{memberCode}</span></div></section><section className="card profile-panel"><h2>Профайлын мэдээлэл</h2><p className="muted">Нэрээ бүртгүүлснээр санал хүсэлт тань таньдаг болно.</p><form className="profile-form" onSubmit={save}><input className="input" value={name} onChange={event => setName(event.target.value)} placeholder="Таны нэр" maxLength={80} /><button className="btn btn-primary">Хадгалах</button></form>{message && <p className="muted">{message}</p>}</section><Link className="feedback-cta" href="/feedback">Санал хүсэлт үлдээх <span>→</span></Link></div></main>;
+}

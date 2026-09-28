@@ -1,3 +1,3 @@
 import { NextResponse } from "next/server";
-import { getCurrentAdmin } from "@/lib/auth";
-export async function GET() { try { const admin = await getCurrentAdmin(); return admin ? NextResponse.json({ admin }) : NextResponse.json({ admin: null }, { status: 401 }); } catch { return NextResponse.json({ admin: null }, { status: 401 }); } }
+import { getCurrentAdmin, getCurrentUser } from "@/lib/auth";
+export async function GET() { try { const admin = await getCurrentAdmin(); if (admin) return NextResponse.json({ admin, user: admin }); const user = await getCurrentUser(); return user ? NextResponse.json({ admin: null, user }) : NextResponse.json({ admin: null, user: null }, { status: 401 }); } catch { return NextResponse.json({ admin: null, user: null }, { status: 401 }); } }

@@ -4,7 +4,9 @@ import { cookies } from "next/headers";
 import { getDb, objectId } from "@/lib/mongodb";
 
 export const ADMIN_SESSION_COOKIE = "ginza_admin_session";
-const sessionMaxAge = 60 * 60 * 8;
+export const USER_SESSION_COOKIE = "ginza_user_session";
+const sessionMaxAge = 60 * 60 * 24 * 30;
+const userSessionMaxAge = 60 * 60 * 24 * 30;
 const defaultUsername = "user-admin";
 const defaultPassword = "ginza123";
 const sessionSecret = process.env.MONGODB_URI || "ginza-session-secret";
@@ -39,4 +41,34 @@ export async function getCurrentAdmin() {
 
 export async function requireAdmin() { const admin = await getCurrentAdmin(); if (!admin) throw new Error("UNAUTHORIZED"); return admin; }
 export async function destroySession() { (await cookies()).delete(ADMIN_SESSION_COOKIE); }
+export type CurrentUser = { id: string; phone: string; name: string; role: "user" | "admin"; stamps: number; coupons: number };
+
+function signSession(value: string) {
+  return crypto.createHmac("sha256", sessionSecret).update(value).digest("hex");
+}
+
+export async function createUserSession(user: { id: string; phone: string; role: "user" | "admin" }) {
+  const payload = `${user.id}:${user.phone}:${user.role}`;
+  const token = `${payload}.${signSession(payload)}`;
+  (await cookies()).set(USER_SESSION_COOKIE, token, { httpOnly: true, sameSite: "lax", secure: process.env.NODE_ENV === "production", path: "/", maxAge: user.role === "admin" ? sessionMaxAge : userSessionMaxAge });
+  if (user.role === "admin") await createSession(user.id);
+}
+
+export async function getCurrentUser(): Promise<CurrentUser | null> {
+  const token = (await cookies()).get(USER_SESSION_COOKIE)?.value;
+  if (!token) return null;
+  const splitAt = token.lastIndexOf(".");
+  const payload = token.slice(0, splitAt);
+  const signature = token.slice(splitAt + 1);
+  const expected = signSession(payload);
+  if (!payload || signature.length !== expected.length || !crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expected))) return null;
+  const [id, phone, role] = payload.split(":");
+  const userId = objectId(id || "");
+  if (!userId || !phone || (role !== "user" && role !== "admin")) return null;
+  const user = await (await getDb()).collection("loyalty_users").findOne({ _id: userId, phone, isActive: true });
+  if (!user) return null;
+  return { id: user._id.toString(), phone: user.phone, name: user.name || "", role: role as CurrentUser["role"], stamps: Number(user.stamps || 0), coupons: Number(user.coupons || 0) };
+}
+
+export async function destroyUserSession() { (await cookies()).delete(USER_SESSION_COOKIE); }
 export { bcrypt, defaultPassword, defaultUsername };

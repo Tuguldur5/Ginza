@@ -5,6 +5,7 @@ export type Room = { id: string; roomNumber: number; name: string; slug: string;
 export type Question = { id: string; type: QuestionType; text: string; required: boolean; order: number; isActive: boolean; createdAt: string; updatedAt: string };
 export type FeedbackAnswer = { questionId: string; answer: string };
 export type Feedback = { id: string; roomId: string; roomNumber: number; rating: number; answers: FeedbackAnswer[]; comment: string; createdAt: string };
+export type LoyaltyUser = { id: string; phone: string; name: string; stamps: number; coupons: number; role: "user" | "admin"; isActive: boolean; createdAt: string; updatedAt: string };
 
 type RoomDocument = Omit<Room, "id">;
 type QuestionDocument = Omit<Question, "id">;
@@ -28,6 +29,9 @@ export async function getDb(): Promise<Db> {
     db.collection("feedbacks").createIndex({ roomId: 1, createdAt: -1 }),
     db.collection("feedbacks").createIndex({ createdAt: -1 }),
     db.collection("feedbacks").createIndex({ rating: 1 }),
+    db.collection("loyalty_users").createIndex({ phone: 1 }, { unique: true }),
+    db.collection("promotions").createIndex({ isActive: 1, startsAt: 1 }),
+    db.collection("otp_codes").createIndex({ expiresAt: 1 }, { expireAfterSeconds: 0 }),
   ]).then(() => undefined).catch(() => undefined);
   return db;
 }
